@@ -1,0 +1,21 @@
+<div class="players">
+    {{#players}}
+        <div class="player">
+            <h1>{{Name}}</h1>
+            <table>
+                <tr>
+                    <th>Country</th>
+                    <th>Golds</th>
+                    <th>Last</th>
+                </tr>
+                {{#Countries}}
+                    <tr>
+                        <td>{{Name}}</td>
+                        <td class="n">{{Golds}}</td>
+                        <td class="n last">{{LastGolds}}</td>
+                    </tr>
+                {{/Countries}}
+            </table>
+        </div>
+    {{/players}}
+</div>
