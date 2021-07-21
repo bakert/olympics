@@ -1,38 +1,35 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"flag"
 
+	"github.com/bakert/olympics/database"
+	"github.com/bakert/olympics/web"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/zerolog/log"
-
-	"github.com/bakert/olympics/view"
 )
 
-func main() {
-	port := ":2021"
-	log.Info().Msg("Starting webserver on port " + port)
-	http.HandleFunc("/", handler)
-	err := http.ListenAndServe(port, nil)
-	if err != nil {
-		log.Info().Err(err).Send()
-	}
-	log.Info().Msg("Shutdown")
+type olympicsConfig struct {
+	dsn string
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	s, err := view.Render(view.Home, map[string]interface{}{
-		"title": "Olympics Gold Medal Contest",
-		"players": players(),
-	})
+func main() {
+	log.Info().Msg("Olympics system startup")
+	cfg := config()
+	db, err := database.Init(cfg.dsn)
 	if err != nil {
-		log.Error().Err(err).Send()
-		return
+		panic(err)
 	}
-	_, err = fmt.Fprintf(w, s)
-	if err != nil {
-		log.Error().Err(err).Send()
-	}
+	web.Init(db)
+}
+
+// BAKERT this doesn't actually work
+func config() olympicsConfig {
+	log.Info().Msg("Configuring")
+	cfg := olympicsConfig{}
+	flag.StringVar(&cfg.dsn, "dsn", "olympics:olympics@/olympics", "DSN for mariadb database")
+	flag.Parse()
+	return cfg
 }
 
 type Player struct {

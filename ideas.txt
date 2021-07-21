@@ -1,3 +1,4 @@
 - Use the official pictograms of each sport from the official website font.
 - Use unicode or graphical flags for each country.
+- Move the web stuff out of main and into a web file or package.
 
