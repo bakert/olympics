@@ -7,9 +7,41 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type Gender string
+
+const (
+	Mens   Gender = "Men's"
+	Womens Gender = "Women's"
+)
+
+type Event struct {
+	Name   string
+	Gender Gender
+	Date   time.Time
+}
+
+type Country struct {
+	Name   string
+	Code   string
+	Last   int
+	Medals int
+}
+
 type Player struct {
-	ID int
-	Name string
+	ID        int
+	Name      string
+	Countries []Country
+	Medals    int
+}
+
+type playerRow struct {
+	PlayerID      int    `db:"player_id"`
+	PlayerName    string `db:"player_name"`
+	CountryID     int    `db:"country_id"`
+	CountryName   string `db:"country_name"`
+	CountryCode   string `db:"country_code"`
+	CountryLast   int    `db:"country_last"`
+	CountryMedals int    `db:"country_medals"`
 }
 
 func Init(dsn string) (*sqlx.DB, error) {
@@ -27,14 +59,58 @@ func Init(dsn string) (*sqlx.DB, error) {
 func LoadPlayers(db *sqlx.DB) ([]Player, error) {
 	sql := `
 		SELECT 
-			p.id, 
-			p.name 
+			p.id AS player_id, 
+			p.name AS player_name,
+		    c.id AS country_id,
+		    c.name AS country_name,
+		    c.code AS country_code,
+		    c.last AS country_last,
+		    SUM(IF(e.id IS NOT NULL, 1, 0)) AS country_medals
 		FROM
-			player AS p`
-	var players = make([]Player, 2)
-	err := db.Select(&players, sql)
+			player AS p
+		LEFT JOIN
+			player_country AS pc ON p.id = pc.player_id
+		INNER JOIN
+			country AS c ON pc.country_id = c.id
+		LEFT JOIN
+			event AS e ON c.id = e.winner_id
+		GROUP BY
+		    p.id,
+			c.id,
+		    c.name,
+		    c.last
+		ORDER BY
+		    p.id,
+			country_medals DESC,
+		    c.last DESC,
+			c.name
+		`
+	var results []playerRow
+	err := db.Select(&results, sql)
 	if err != nil {
 		return nil, err
 	}
+	var players []Player
+	var player Player
+	for _, r := range results {
+		if r.PlayerID != player.ID {
+			if player.ID > 0 {
+				players = append(players, player)
+				player = Player{}
+			}
+			player.ID = r.PlayerID
+			player.Name = r.PlayerName
+			player.Countries = []Country{}
+		}
+		country := Country{
+			Name:   r.CountryName,
+			Code:   r.CountryCode,
+			Last:   r.CountryLast,
+			Medals: r.CountryMedals,
+		}
+		player.Countries = append(player.Countries, country)
+		player.Medals = player.Medals + country.Medals
+	}
+	players = append(players, player)
 	return players, nil
 }

@@ -17,20 +17,15 @@ CREATE TABLE IF NOT EXISTS event (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(60) NOT NULL,
     gender ENUM('Men''s', 'Women''s') NOT NULL,
-    `date` INT NOT NULL
+    `date` INT NOT NULL,
+    winner_id INT,
+    FOREIGN KEY(winner_id) REFERENCES country(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS player_country (
     player_id INT NOT NULL,
     country_id INT NOT NULL,
     FOREIGN KEY(player_id) REFERENCES player(id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(country_id) REFERENCES country(id) ON UPDATE CASCADE ON DELETE CASCADE
-);
-CREATE TABLE IF NOT EXISTS medal (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    country_id INTEGER NOT NULL,
-    event_id INTEGER NOT NULL,
-    FOREIGN KEY(country_id) REFERENCES country(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY(event_id) REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 INSERT INTO
     player (`name`)
@@ -215,4 +210,7 @@ VALUES
     (2, 81),
     (2, 82),
     (2, 83),
-    (2, 84);
+    (2, 84),
+    (2, 85),
+    (2, 86),
+    (2, 87);
