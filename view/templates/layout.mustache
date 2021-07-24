@@ -150,14 +150,12 @@
                 <div class="title">
                     <h1>{{title}}</h1>
                     <table>
-                        <tr>
-                            <th>Katie</th>
-                            <td>0</td>
-                        </tr>
-                        <tr>
-                            <th>Tom</th>
-                            <td>0</td>
-                        </tr>
+                        {{#players}}
+                            <tr>
+                                <th>{{Name}}</th>
+                                <td>{{Medals}}</td>
+                            </tr>
+                        {{/players}}
                     </table>
                 </div>
             </header>

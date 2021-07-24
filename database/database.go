@@ -7,20 +7,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Gender string
-
-const (
-	Mens   Gender = "Men's"
-	Womens Gender = "Women's"
-)
-
-type Event struct {
-	Name   string
-	Gender Gender
-	Date   time.Time
-}
-
 type Country struct {
+	ID     int
 	Name   string
 	Code   string
 	Last   int
@@ -44,6 +32,11 @@ type playerRow struct {
 	CountryMedals int    `db:"country_medals"`
 }
 
+type Medals struct {
+	Country Country
+	Medals  int
+}
+
 func Init(dsn string) (*sqlx.DB, error) {
 	log.Info().Msg("Opening database connection with " + dsn) // BAKERT remove logging of pwd
 	db, err := sqlx.Open("mysql", dsn)
@@ -65,23 +58,22 @@ func LoadPlayers(db *sqlx.DB) ([]Player, error) {
 		    c.name AS country_name,
 		    c.code AS country_code,
 		    c.last AS country_last,
-		    SUM(IF(e.id IS NOT NULL, 1, 0)) AS country_medals
+		    c.medals AS country_medals
 		FROM
 			player AS p
 		LEFT JOIN
 			player_country AS pc ON p.id = pc.player_id
 		INNER JOIN
 			country AS c ON pc.country_id = c.id
-		LEFT JOIN
-			event AS e ON c.id = e.winner_id
 		GROUP BY
 		    p.id,
 			c.id,
-		    c.name,
-		    c.last
+			c.medals,
+		    c.last,
+		    c.name
 		ORDER BY
 		    p.id,
-			country_medals DESC,
+			c.medals DESC,
 		    c.last DESC,
 			c.name
 		`
@@ -113,4 +105,29 @@ func LoadPlayers(db *sqlx.DB) ([]Player, error) {
 	}
 	players = append(players, player)
 	return players, nil
+}
+
+func Update(db *sqlx.DB, medals []Medals) error {
+	sql := "UPDATE country SET medals = ? WHERE id = ?"
+	for _, m := range medals {
+		_, err := db.Exec(sql, m.Medals, m.Country.ID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func Countries(db *sqlx.DB) (map[string]Country, error) {
+	sql := "SELECT id, name, code, last, medals FROM country"
+	var results []Country
+	err := db.Select(&results, sql)
+	if err != nil {
+		return nil, err
+	}
+	countries := make(map[string]Country)
+	for _, r := range results {
+		countries[r.Code] = r
+	}
+	return countries, nil
 }

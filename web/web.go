@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/bakert/olympics/fetch"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
@@ -20,7 +21,7 @@ func Init(db *sqlx.DB) {
 	port := ":2021" // BAKERT move into config probably
 	log.Info().Msg("Starting webserver on port " + port)
 	r := mux.NewRouter()
-	r.HandleFunc("/", makeHandler(home, db)) // BAKERT this needs to also handle 404 some way other than sending you to home
+	r.HandleFunc("/", makeHandler(home, db))       // BAKERT this needs to also handle 404 some way other than sending you to home
 	r.HandleFunc("/{name}", makeHandler(home, db)) // BAKERT this needs to also handle 404 some way other than sending you to home
 	//r.HandleFunc("/country/{id}", makeHandler(country, db))
 	//r.HandleFunc("/player/{id}", makeHandler(player, db))
@@ -47,6 +48,10 @@ func makeHandler(controller controller, db *sqlx.DB) handler {
 }
 
 func home(_ vars, db *sqlx.DB) (string, error) {
+	err := fetch.UpdateMedalTable(db)
+	if err != nil {
+		return "", err
+	}
 	log.Info().Msg("Rendering homepage")
 	players, err := database.LoadPlayers(db)
 	if err != nil {

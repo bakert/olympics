@@ -11,15 +11,8 @@ CREATE TABLE IF NOT EXISTS country (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(60) NOT NULL,
     code VARCHAR(3) NOT NULL,
-    `last` INT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS event (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(60) NOT NULL,
-    gender ENUM('Men''s', 'Women''s') NOT NULL,
-    `date` INT NOT NULL,
-    winner_id INT,
-    FOREIGN KEY(winner_id) REFERENCES country(id) ON UPDATE CASCADE ON DELETE CASCADE
+    `last` INT NOT NULL,
+    medals INT NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS player_country (
     player_id INT NOT NULL,
@@ -82,8 +75,8 @@ VALUES
     -- Tom
     ('Great Britain', 'GBR', 27),
     ('China', 'CHN', 26),
-    ('Russia', 'RUS', 19),
-    ('Japan', 'JPN', 12),
+    ('Russia', 'ROC', 19),
+    -- ('Japan', 'JPN', 12),
     ('Italy', 'ITA', 8),
     ('Brazil', 'BRA', 7),
     ('Jamaica', 'JAM', 6),
@@ -173,6 +166,7 @@ VALUES
     (2, 44),
     (2, 45),
     (2, 46),
+    (2, 3), -- Japan
     (2, 47),
     (2, 48),
     (2, 49),
@@ -212,5 +206,4 @@ VALUES
     (2, 83),
     (2, 84),
     (2, 85),
-    (2, 86),
-    (2, 87);
+    (2, 86);
