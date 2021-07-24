@@ -40,7 +40,7 @@ func makeHandler(controller controller, db *sqlx.DB) handler {
 		if err != nil {
 			log.Error().Err(err).Send()
 		}
-		_, err = fmt.Fprintf(w, s)
+		_, err = fmt.Fprint(w, s)
 		if err != nil {
 			log.Error().Err(err).Send()
 		}
