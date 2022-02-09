@@ -10,7 +10,8 @@ import (
 )
 
 // BAKERT move to config?
-var medalTableURL = "https://og2020-api.sports.gracenote.com/svc/games_v2.svc/json/GetMedalTable_Season?competitionSetId=1&season=2021&languageCode=2"
+//var medalTableURL = "https://og2020-api.sports.gracenote.com/svc/games_v2.svc/json/GetMedalTable_Season?competitionSetId=1&season=2021&languageCode=2"
+var medalTableURL = "https://www.nbcolympics.com/api/medals/GetMedalTable_Season?competitionSetId=2&season=20212022&languageCode=2"
 
 type RawMedals struct {
 	MedalTableInfo MedalTableInfo       `json:"MedalTableInfo"`

@@ -207,3 +207,7 @@ VALUES
     (2, 84),
     (2, 85),
     (2, 86);
+
+// Winter Olympics
+DELETE FROM player_country WHERE player_id = 1 AND country_id = 3; -- Japan
+INSERT INTO player_country (player_id, country_id) VALUES (1, 45); -- China
